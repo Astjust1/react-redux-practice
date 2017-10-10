@@ -1,7 +1,7 @@
 import {List, Map} from 'immutable';
 import {expect} from 'chai';
 
-import {setEntries,next} from '../src/core';
+import {setEntries,next,vote} from '../src/core';
 
 describe('app logic', () =>{
     describe('setEntries', ()=>{
@@ -13,7 +13,7 @@ describe('app logic', () =>{
             expect(nextState).to.equal(Map({
                 entries: List.of('Trainspotting','28 Days Later')
             }));
-        })
+        });
 
         it('converts to immutable', () =>{
             const state = Map();
@@ -23,7 +23,7 @@ describe('app logic', () =>{
                 entries: List.of('Trainspotting', '28 Days Later')
             }));
         });
-    })
+    });
 
     describe('next', () =>{
 
@@ -42,4 +42,51 @@ describe('app logic', () =>{
         });
 
     });
-})
+
+    describe('vote', () =>{
+
+        it('creates a tally for the voted entry', ()=>{
+            const state = Map({
+                vote: Map({
+                    pair: List.of('Trainspotting', '28 Days Later')
+                 }) ,
+                entries: List()
+            });
+            const nextState = vote(state, 'Trainspotting');
+            expect(nextState).to.equal(Map({
+                vote: Map({
+                    pair: List.of('Trainspotting','28 Days Later'),
+                    tally: Map({
+                        'Trainspotting':1
+                    })
+                }),
+                entries: List()
+            }));
+
+        });
+
+        it('adds to existing tally for the voted entry',()=>{
+            const state = Map({
+                vote: Map({
+                    pair: List.of('Trainspotting','28 Days Later'),
+                    tally: Map({
+                        'Trainspotting': 5,
+                        '28 Days Later': 2
+                    })
+                }),
+                entries: List()
+            });
+            const nextState = vote(state, 'Trainspotting');
+            expect(nextState).to.equal(Map({
+                vote: Map({
+                    pair: List.of('Trainspotting','28 Days Later'),
+                    tally: Map({
+                        'Trainspotting': 6,
+                        '28 Days Later': 2
+                    })
+                }),
+                entries: List()
+            }));
+        });
+    });
+});
